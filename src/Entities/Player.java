@@ -9,6 +9,7 @@ public class Player extends Entity{
 	private int xp;
 	private int gold;
 	private int mana;
+	private int maxHp;
 	
 	//Constructeur
 	public Player(String name, PlayerClass playerClass) {
@@ -22,17 +23,21 @@ public class Player extends Entity{
 		
 		//Stats différentes en fonction de la classe
 		if(playerClass == PlayerClass.ARCHER) {
-			this.maxHp = 90;
-			this.attack = 12;
+			this.setMaxHp(90);
+			this.hp = 90;
+			this.attack = 11;
 			this.defense = 4;
 		} else if (playerClass == PlayerClass.BARBARE) {
-			this.maxHp = 110;
-			this.attack = 14;
+			this.setMaxHp(110);
+			this.hp = 110;
+			this.attack = 12;
 			this.defense = 3;
 		} else if (playerClass == PlayerClass.CHEVALIER) {
+			this.setMaxHp(100);
 			this.defense = 10;
 		} else if (playerClass == PlayerClass.MAGE) {
-			this.attack = 5;
+			this.setMaxHp(100);
+			this.attack = 8;
 			this.defense = 8;
 			this.mana = 50;
 		}
@@ -47,18 +52,18 @@ public class Player extends Entity{
 		return y;
 	}
 	
-	public void setPos(int x, int y)
+	public void setPos(Player player, int x, int y)
 	{
 		this.x = x;
 		this.y = y;
 	}
 	
-	public int getGold()
+	public int getGold(int g)
 	{
 		return gold;
 	}
 	
-	public int getXp()
+	public int getXp(int xp)
 	{
 		return xp;
 	}

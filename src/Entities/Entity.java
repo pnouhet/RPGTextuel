@@ -42,6 +42,11 @@ public abstract class Entity {
 		return hp;
 	}
 	
+	public int setHp()
+	{
+		return hp;
+	}
+	
 	public int getAttack()
 	{
 		return attack;
@@ -50,5 +55,13 @@ public abstract class Entity {
 	public int getDefense()
 	{
 		return defense;
+	}
+	
+	public int getMaxHp() {
+		return maxHp;
+	}
+
+	public void setMaxHp(int maxHp) {
+		this.maxHp = maxHp;
 	}
 }

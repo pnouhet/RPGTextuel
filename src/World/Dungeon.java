@@ -7,7 +7,7 @@ import Entities.Player;
 public class Dungeon {
 
 	private Tile[][] map;
-	private final int size = 12;
+	private final int size = 6;
 	private int level;
 	private Player player;
 	
@@ -60,18 +60,18 @@ public class Dungeon {
 		for(int x = 0; x < size; x++) {
 			for (int y = 0; y < size; y++) {
 				if(x == player.getX() && y == player.getY()) {
-					System.out.println("[P]");
+					System.out.print("[P]");
 				} else {
 					switch (map[x][y]) {
-						case EMPTY: System.out.println("[ ]");
+						case EMPTY: System.out.print("[ ]");
 						break;
-						case MONSTER: System.out.println("[M]");
+						case MONSTER: System.out.print("[M]");
 						break;
-						case OBSTACLE: System.out.println("[O]");
+						case OBSTACLE: System.out.print("[O]");
 						break;
-						case SHOP: System.out.println("[S]");
+						case SHOP: System.out.print("[S]");
 						break;
-						case EXIT: System.out.println("[E]");
+						case EXIT: System.out.print("[E]");
 						break;
 					}
 				}
