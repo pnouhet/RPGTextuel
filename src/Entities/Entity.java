@@ -2,7 +2,7 @@ package Entities;
 
 public abstract class Entity {
 
-	protected String name;
+	public String name;
 	protected int hp;
 	protected int maxHp;
 	protected int attack;

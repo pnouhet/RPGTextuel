@@ -1,8 +1,11 @@
 package Main;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import Entities.Player;
 import Entities.Player.PlayerClass;
+import Items.Item;
+import Items.Weapon;
 import World.Dungeon;
 import World.Tile;
 import Story.Story;
@@ -14,45 +17,56 @@ public class GameLogic {
 	public static boolean isRunning;
 	private static Scanner scanner = new Scanner(System.in);
 	
+	//Methode qui lance le jeu
 	public static void startGame()
 	{
 		isRunning = true;
 		
+		//Definir son personnage
 		setupPlayer();
 		
-		System.out.println("---Prologue---\nVous vous réveillez après plusieurs heures...");
-		System.out.println("Votre village vient d'être détruit par une ordes de gobelins\nVos parents, vos amis, vos voisins, plus personnes n'est là...");
-		System.out.println("Vous décidez de vous venger et partez à la recherche des gobelins qui ont fait ça.");
+		//Démarrage de l'intro
+		Story.Intro();
 		
 		Encounters.currentDungeon = new Dungeon(Encounters.dungeonLvl, player);
 		
+		//Lancement de la boucle d'actions principale
 		gameLoop();
 		
 		System.out.println("Merci d'avoir joué !");
 	}
 	
+	//Boucle d'actions principale
 	private static void gameLoop()
 	{
 		while(isRunning) {
 			Encounters.currentDungeon.displayMap();
+			System.out.println("------------");
 			//showPlayerStats();
 			
 			//Demander l'action
 			System.out.println("Choisissez une action : \n(1) Haut\n(2) Bas\n(3) Gauche\n(4) Droite\n(5) Infos " + player.getName());
 			System.out.println("(6) Inventaire\n(7) Quitter le jeu");
-			int input = scanner.nextInt();
-			if(input == 5) {
-				showPlayerStats();
-			} else if (input == 6) {
-				//showPlayerInventory();
-			} else if (input == 7) {
-				isRunning = false;
-			} else {
-				processMovement(input);
+			String inputStr = scanner.nextLine();
+			
+			try {
+				int input = Integer.parseInt(inputStr);
+				if(input == 5) {
+					showPlayerStats();
+				} else if (input == 6) {
+					showPlayerInventory();
+				} else if (input == 7) {
+					isRunning = false;
+				} else {
+					processMovement(input);
+				}
+			} catch (NumberFormatException e) {
+				System.out.println("Veuillez entrez un numéro valide.");
 			}
 		}
 	}
 
+	//Methode pour définir le joueur en début de game, définir son nom et sa classe
 	private static void setupPlayer()
 	{
 		boolean nameSet = false;
@@ -98,19 +112,73 @@ public class GameLogic {
 			}
 		} while (!classSet);
 		player = new Player(name, playerClass);
-		Story.Intro();
 	}
 	
-	private static void showPlayerStats() {
+	//Methode pour afficher les stats du joueur
+	private static void showPlayerStats() 
+	{
 		System.out.println("---");
 		System.out.println(player.getName() + " | " + player.getPlayerClass());
-		System.out.println(player.getName() + " | PV: " + player.getHp() + "/" + player.getMaxHp() + " | EXP: " + player.getXp(0) + " | Pièces: " + player.getGold(0));
+		System.out.println(player.getName() + " | PV: " + player.getHp() + "/" + player.getMaxHp() + " | EXP: " + player.getXp() + " | Pièces: " + player.getGold());
 		if (player.getPlayerClass() == PlayerClass.MAGE) {
 			System.out.println("Mana: " + player.getMana());
 		}
 	}
 
-	private static void processMovement(int input) {
+	//Methode pour afficher l'inventaire du joueur
+	public static void showPlayerInventory() 
+	{
+		System.out.println("\n---INVENTAIRE---");
+		
+		//Afficher l'arme equipée
+		Weapon equippedWeapon = player.getCurrentWeapon();
+		System.out.println("ARME ÉQUIPÉE: ");
+		if (equippedWeapon != null) {
+			System.out.println(" - " + equippedWeapon.getItemName() + "(Atk " + equippedWeapon.getAttackBonus() + ")");
+			System.out.println(" {'" + equippedWeapon.getItemDesc() + "'}");
+		} else {
+			System.out.println(" - Aucune arme équipée");
+		}
+		
+		//Afficher les items ArrayList inventory
+		System.out.println("\nSAC À DOS: ");
+		ArrayList<Item> inventory = player.getInv();
+		
+		if(inventory.isEmpty()) {
+			System.out.println("Votre sac est vide.");
+		} else {
+			for(int i = 0; i < inventory.size(); i++) {
+				Item item = inventory.get(i);
+				System.out.println("  (" + (i+1) + ")  " + item.getItemName());
+				System.out.println("  {" + item.getItemDesc() + "}  ");
+			}
+		}
+		
+		//Actions de l'inventaire
+		System.out.println("\nQue voulez-vous faire ? \n(1)Utiliser un objet \n(2)Fermer l'inventaire");
+		int choice = scanner.nextInt();
+		
+		if(choice == 1) {
+			if (inventory.isEmpty()) {
+				System.out.println("Vous n'avez pas aucun objet à utiliser");
+				return;
+			}
+			
+			System.out.println("Quel objet souhaitez-vous utiliser ? (Entrez le numéro)");
+			try {
+				int input = scanner.nextInt();
+				player.useItem(input - 1);
+			} catch (NumberFormatException e) {
+				System.out.println("Erreur, entrez un numéro");
+			} catch (IndexOutOfBoundsException e) {
+				System.out.println("Numéro d'objet invalide");
+			}
+		}
+	}
+
+	//Methode pour récupérer le mouvement dans la map
+	private static void processMovement(int input) 
+	{
 		int newX = player.getX();
 		int newY = player.getY();
 		
@@ -145,7 +213,7 @@ public class GameLogic {
 				Encounters.handleMonster(player, newX, newY);
 				break;
 			case Tile.SHOP:
-				Encounters.handleShop();
+				Encounters.handleShop(player, newY, newY);
 				player.setPos(player, newX, newY);
 				break;
 			case Tile.EXIT:
@@ -154,19 +222,5 @@ public class GameLogic {
 		}
 		
 	}
-
-	/*
-	private static void handleExit() {
-		
-	}
-
-	private static void handleMonster(int newX, int newY) {
-		
-	}
-
-	private static void handleObstacle(int newX, int newY) {
-		
-	}
-	*/
 	
 }

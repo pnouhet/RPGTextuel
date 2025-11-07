@@ -29,29 +29,35 @@ public class Encounters {
 			System.out.println(player.getName() + " HP: " + player.getHp() + "/" + player.getMaxHp());
 			System.out.println(monster.getName() + " HP: " + monster.getHp() + "/" + monster.getMaxHp());
 			System.out.println("Que voulez-vous faire ?\n(1) Attaquer\n(2) Fuir le combat");
-			int choice = scanner.nextInt();
-			int playerDmg = Math.max(1, player.getAttack() - monster.getDefense());
-			int monsterDmg = Math.max(1, monster.getAttack() - player.getDefense());
 			
-			//Logique d'attaque
-			if(choice == 1) {
+			int choice = -1;
+			try {
+				int playerDmg = Math.max(1, player.getAttack() - monster.getDefense());
+				int monsterDmg = Math.max(1, monster.getAttack() - player.getDefense());
 				
-				monster.takeDmg(playerDmg);
-				System.out.println("Vous infligez " + playerDmg + " dégats à " + monster.getName());
-				
-				if(monster.isAlive()) {
-					player.takeDmg(monsterDmg);
-					System.out.println(monster.getName() + " vous inflige " + monsterDmg + " dégats");
+				//Logique d'attaque
+				if(choice == 1) {
+					monster.takeDmg(playerDmg);
+					System.out.println("Vous infligez " + playerDmg + " dégats à " + monster.getName());
+					
+					if(monster.isAlive()) {
+						player.takeDmg(monsterDmg);
+						System.out.println(monster.getName() + " vous inflige " + monsterDmg + " dégats");
+					}
+				} else if (choice == 2) {
+					GameLogic.showPlayerInventory();
+				} else if (choice == 3){
+					if(random.nextBoolean()) {
+						System.out.println("Vous avez réussi à fuir !");
+						return;
+					} else {
+						System.out.println("Vous n'avez pas réussi à fuir le combat...");
+						player.takeDmg(monsterDmg);
+						System.out.println(monster.getName() + " vous inflige " + monsterDmg + " pendant votre tentative de fuite");
+					}
 				}
-			} else if (choice == 2){
-				if(random.nextBoolean()) {
-					System.out.println("Vous avez réussi à fuir !");
-					return;
-				} else {
-					System.out.println("Vous n'avez pas réussi à fuir le combat...");
-					player.takeDmg(monsterDmg);
-					System.out.println(monster.getName() + " vous inflige " + monsterDmg + " pendant votre tentative de fuite");
-				}
+			} catch (NumberFormatException e) {
+				System.out.println("Veuillez entrer un numéro valide.");
 			}
 		}
 		
@@ -61,8 +67,8 @@ public class Encounters {
 			GameLogic.isRunning = false;
 		} else {
 			System.out.println("Vous avez vaincu " + monster.getName() + "!");
-			player.getXp(monster.getXpOnDeath());
-			player.getGold(monster.getGoldOnDeath());
+			player.takeXp(monster.getXpOnDeath());
+			player.takeGold(monster.getGoldOnDeath());
 			System.out.println("Vous avez gagné " + monster.getXpOnDeath() + " EXP et " + monster.getGoldOnDeath() + " Pièces.");
 			player.setPos(player, x, y);
 			currentDungeon.clearTile(x, y);
@@ -96,7 +102,7 @@ public class Encounters {
 			System.out.println("Vous détruisez le rocher.");
 			//Math.random()
 			System.out.println("Malheureusement vous vous blessez en détruisant l'obstacle et perdez 5 PV.");
-			//Entities.Player player = player.takeDmg();
+			player.takeDmg(5);
 			currentDungeon.clearTile(x, y);
 			player.setPos(player, x, y);
 		} else {
@@ -123,20 +129,94 @@ public class Encounters {
 		} else {
 			Story.End();
 		}
-		
 	}
 	
 	public static void handleBoosFight(Player player)
 	{
+		//Creation du boss
 		Monster boss = new Monster("Ogre, Boss du Fort", 300, 30, 10, 1000, 500);
 		
-		System.out.println("Vous avez vaincu " + boss.getName() + "! Le Fort est libéré !");
-		dungeonLvl++;
+		System.out.println("Vous rencontrez un " + boss.getName() + " ennemi ! Battez-vous !");
+		
+		while(player.isAlive() && boss.isAlive()) {
+			System.out.println("\n---COMBAT---");
+			System.out.println(player.getName() + " HP: " + player.getHp() + "/" + player.getMaxHp());
+			System.out.println(boss.getName() + " HP: " + boss.getHp() + "/" + boss.getMaxHp());
+			System.out.println("Que voulez-vous faire ?\n(1) Attaquer\n(2) Ouvrir l'inventaire\n(3) Fuir le combat");
+			int choice = scanner.nextInt();
+			int playerDmg = Math.max(1, player.getAttack() - boss.getDefense());
+			int monsterDmg = Math.max(1, boss.getAttack() - player.getDefense());
+			
+			//Logique d'attaque
+			if(choice == 1) {
+				
+				boss.takeDmg(playerDmg);
+				System.out.println("Vous infligez " + playerDmg + " dégats à " + boss.getName());
+				
+				if(boss.isAlive()) {
+					player.takeDmg(monsterDmg);
+					System.out.println(boss.getName() + " vous inflige " + monsterDmg + " dégats");
+				}
+			} else if (choice == 2) {
+				GameLogic.showPlayerInventory();
+			} else if (choice == 3)	{
+				System.out.println("Vous ne pouvez pas fuir le combat.");
+			}
+		}
+		
+		//Resultat combat
+		if(!player.isAlive()) {
+			System.out.println("Vous êtes mort. Game Over");
+			GameLogic.isRunning = false;
+		} else {
+			System.out.println("FÉLICITATIONS ! VOUS AVEZ VAINCU " + boss.getName() + " !");
+			System.out.println("Grâce à vous le Fort est libéré !");
+			player.takeXp(boss.getXpOnDeath());
+			player.takeGold(boss.getGoldOnDeath());
+			System.out.println("Vous avez gagné " + boss.getXpOnDeath() + " EXP et " + boss.getGoldOnDeath() + " Pièces.");
+		}
 		handleExit(player);
 	}
 
-	public static void handleShop() 
+	public static void handleShop(Player player, int x, int y) 
 	{
-		System.out.println("Vous trouvez un magasin !");		
+		System.out.println("Vous rencontrez un Marchand louche !");
+		player.setPos(player, x, y);
+		
+		while(true) {
+			System.out.println("Pièces en poche : " + player.getGold());
+			System.out.println("Que voulez-vous acheter ?");
+			System.out.println("(1) Potions - 10 Pièces \n(2) Hache - 100 Pièces\n(3) Armure Rouillé - 25 Pièces\n(4) Partir");
+			int choice = scanner.nextInt();
+			
+			if(choice == 1) {
+				if (player.getGold() >= 10) {
+				//player.addPotion();
+				player.takeGold(-10);
+				System.out.println("Vous avez acheté 1 Potion !");
+				} else {
+					System.out.println("Vous n'avez pas assez de pièces.");
+				}
+			} else if (choice == 2) {
+				if (player.getGold() >= 100) {
+				//player.addAxe();
+				player.takeGold(-100);
+				System.out.println("Vous avez acheté 1 Hache !");
+				} else {
+					System.out.println("Vous n'avez pas assez de pièces.");
+				}
+			} else if (choice == 3) {
+				if (player.getGold() >= 25) {
+				//player.addRustyArmor();
+				player.takeGold(-25);
+				System.out.println("Vous avez acheté 1 Armure Rouillée !");
+				} else {
+					System.out.println("Vous n'avez pas assez de pièces.");
+				}
+			} else if (choice == 4) {
+				System.out.println("Marchand Louche : À bientôt Voyageur.");
+				break;
+			}
+		} 
 	}
 }
