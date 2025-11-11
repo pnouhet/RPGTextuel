@@ -17,7 +17,7 @@ public class Player extends Entity{
 	private int xp;
 	private int gold;
 	private int mana;
-	private int maxHp;
+	//private int maxHp;
 	
 	//Constructeur
 	public Player(String name, PlayerClass playerClass) {
@@ -118,7 +118,9 @@ public class Player extends Entity{
 	//Methode pour soigner le joueur, utiliser une potion
 	public void heal(int healAmount)
 	{
-		this.hp += healAmount;
+		int newHpValue = this.hp + healAmount;
+		this.hp = newHpValue;
+		
 		if(this.hp > this.maxHp) {
 			this.hp = this.maxHp;
 		}
@@ -144,5 +146,9 @@ public class Player extends Entity{
 
 	public ArrayList<Item> getInv() {
 		return this.inventory;
+	}
+
+	public void addItem(Item item) {
+		this.inventory.add(item);
 	}
 }

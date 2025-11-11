@@ -43,6 +43,11 @@ public class Story {
 	}
 
 	// Combat contre le Boss Final
+	public static void FinalActBoss() {
+		System.out.println("--- Boss Ogre ---");
+		System.out.println("GNARAAAAAH ! TUE PETIT HUMAIN !");
+	}
+	
 	public static void End() {
 		System.out.println("\n--- Épilogue : Un silence bien mérité ---");
 		System.out.println("L'Ogre s'effondre dans un vacarme assourdissant. Le silence retombe sur le Fort des Crocs Cassés.");
@@ -52,4 +57,5 @@ public class Story {
 		System.out.println("\n***FÉLICITATIONS, " + GameLogic.player.getName() + ". VOUS AVEZ TERMINÉ VOTRE QUÊTE.***");
 		GameLogic.isRunning = false;
 	}
+
 }

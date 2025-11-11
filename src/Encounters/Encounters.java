@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import Entities.Monster;
 import Entities.Player;
+import Items.Potion;
 import Main.GameLogic;
 import Story.Story;
 import World.Dungeon;
@@ -28,7 +29,8 @@ public class Encounters {
 			System.out.println("\n---COMBAT---");
 			System.out.println(player.getName() + " HP: " + player.getHp() + "/" + player.getMaxHp());
 			System.out.println(monster.getName() + " HP: " + monster.getHp() + "/" + monster.getMaxHp());
-			System.out.println("Que voulez-vous faire ?\n(1) Attaquer\n(2) Fuir le combat");
+			System.out.println("---CHOIX---");
+			System.out.println("Que voulez-vous faire ?\n(1) Attaquer\n(2) Inventaire \n(3) Fuir le combat");
 			String inputStr = scanner.nextLine();
 			
 			//int choice = -1;
@@ -67,7 +69,7 @@ public class Encounters {
 		if(!player.isAlive()) {
 			System.out.println("Vous êtes mort. Game Over");
 			GameLogic.isRunning = false;
-		} else {
+		} else if (player.isAlive()){
 			System.out.println("Vous avez vaincu " + monster.getName() + "!");
 			player.takeXp(monster.getXpOnDeath());
 			player.takeGold(monster.getGoldOnDeath());
@@ -114,6 +116,7 @@ public class Encounters {
 
 	public static void handleExit(Player player) 
 	{
+		System.out.println("-!- DONJON TERMINÉ -!-");
 		System.out.println("BRAVO ! Vous avez trouvé la sortie du Donjon !");
 		dungeonLvl++;
 		if (dungeonLvl == 2) {
@@ -128,12 +131,15 @@ public class Encounters {
 			Story.Act3();
 			player.setPos(player, 0, 0);
 			currentDungeon = new Dungeon(dungeonLvl, player);
+		} else if (dungeonLvl == 5) {
+			Story.FinalActBoss();
+			handleBossFight(player);
 		} else {
 			Story.End();
 		}
 	}
 	
-	public static void handleBoosFight(Player player)
+	public static void handleBossFight(Player player)
 	{
 		//Creation du boss
 		Monster boss = new Monster("Ogre, Boss du Fort", 300, 30, 10, 1000, 500);
@@ -144,6 +150,7 @@ public class Encounters {
 			System.out.println("\n---COMBAT---");
 			System.out.println(player.getName() + " HP: " + player.getHp() + "/" + player.getMaxHp());
 			System.out.println(boss.getName() + " HP: " + boss.getHp() + "/" + boss.getMaxHp());
+			System.out.println("---CHOIX---");
 			System.out.println("Que voulez-vous faire ?\n(1) Attaquer\n(2) Ouvrir l'inventaire\n(3) Fuir le combat");
 			int choice = scanner.nextInt();
 			int playerDmg = Math.max(1, player.getAttack() - boss.getDefense());
@@ -168,9 +175,10 @@ public class Encounters {
 		
 		//Resultat combat
 		if(!player.isAlive()) {
-			System.out.println("Vous êtes mort. Game Over");
+			System.out.println("---GAME OVER---");
+			System.out.println("Vous êtes mort...");
 			GameLogic.isRunning = false;
-		} else {
+		} else if (player.isAlive()) {
 			System.out.println("FÉLICITATIONS ! VOUS AVEZ VAINCU " + boss.getName() + " !");
 			System.out.println("Grâce à vous le Fort est libéré !");
 			player.takeXp(boss.getXpOnDeath());
@@ -186,16 +194,18 @@ public class Encounters {
 		player.setPos(player, x, y);
 		
 		while(true) {
+			Potion potion = new Potion("Potion", "Une potion magique qui redonne 50 PV.", 10, 50);
 			System.out.println("Pièces en poche : " + player.getGold());
 			System.out.println("Que voulez-vous acheter ?");
-			System.out.println("(1) Potions - 10 Pièces \n(2) Hache - 100 Pièces\n(3) Armure Rouillé - 25 Pièces\n(4) Partir");
+			System.out.println("(1) " + potion.getItemName() + " - " + potion.getItemPrice() + " Pièces \n(2) Hache - 100 Pièces\n(3) Armure Rouillé - 25 Pièces\n(4) Partir");
 			int choice = scanner.nextInt();
 			
 			if(choice == 1) {
 				if (player.getGold() >= 10) {
-				//player.addPotion();
+				
+				player.addItem(potion);
 				player.takeGold(-10);
-				System.out.println("Vous avez acheté 1 Potion !");
+				System.out.println("Vous avez acheté 1 " + potion.getItemName() + " !");
 				} else {
 					System.out.println("Vous n'avez pas assez de pièces.");
 				}

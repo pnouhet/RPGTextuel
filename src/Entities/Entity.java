@@ -42,7 +42,7 @@ public abstract class Entity {
 		return hp;
 	}
 	
-	public int setHp()
+	public int getHpValue()
 	{
 		return hp;
 	}

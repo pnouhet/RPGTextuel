@@ -2,6 +2,8 @@ package Main;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import AsciiArt.Arts;
 import Entities.Player;
 import Entities.Player.PlayerClass;
 import Items.Item;
@@ -21,7 +23,6 @@ public class GameLogic {
 	public static void startGame()
 	{
 		isRunning = true;
-		
 		//Definir son personnage
 		setupPlayer();
 		
@@ -117,11 +118,21 @@ public class GameLogic {
 	//Methode pour afficher les stats du joueur
 	private static void showPlayerStats() 
 	{
-		System.out.println("---");
+		System.out.println("--- INFOS PERSONNAGE ---");
 		System.out.println(player.getName() + " | " + player.getPlayerClass());
 		System.out.println(player.getName() + " | PV: " + player.getHp() + "/" + player.getMaxHp() + " | EXP: " + player.getXp() + " | Pièces: " + player.getGold());
 		if (player.getPlayerClass() == PlayerClass.MAGE) {
 			System.out.println("Mana: " + player.getMana());
+		}
+		//Afficher le visuel du personnage en fonction de la classe choisie
+		if(player.getPlayerClass() == PlayerClass.CHEVALIER) {
+			Arts.knightVisual();
+		} else if (player.getPlayerClass() == PlayerClass.ARCHER) {
+			Arts.archerVisual();
+		} else if (player.getPlayerClass() == PlayerClass.BARBARE) {
+			Arts.barbareVisual();
+		} else {
+			Arts.mageVisual();
 		}
 	}
 
@@ -164,7 +175,7 @@ public class GameLogic {
 				return;
 			}
 			
-			System.out.println("Quel objet souhaitez-vous utiliser ? (Entrez le numéro)");
+			System.out.println("Quel objet souhaitez-vous utiliser ? (Entrez le numéro de l'objet)");
 			try {
 				int input = scanner.nextInt();
 				player.useItem(input - 1);
